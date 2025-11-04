@@ -21,13 +21,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -35,10 +46,12 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +71,6 @@ data class Photo (
     val name: String,
     @DrawableRes val photo: Int
 )
-
 val photos = mutableListOf<Photo>(
     Photo(UUID.randomUUID(),"Corona solar", R.drawable.corona_solar),
     Photo(UUID.randomUUID(),"Erupción solar", R.drawable.erupcionsolar),
@@ -78,7 +90,7 @@ class MainActivity : ComponentActivity() {
                 val scope = rememberCoroutineScope()
                 val snackbarHostState = remember { SnackbarHostState() }
 
-                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {  BottomAppBar() }) { innerPadding ->
                     MainScreen(
                         modifier = Modifier.padding(innerPadding),
                         snackbarHostState = snackbarHostState,
@@ -190,6 +202,43 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
     }
 }
 
+@Composable
+fun BottomAppBar() {
+
+    var contador by remember { mutableStateOf(0) }
+
+    BottomAppBar(
+        actions = {
+            IconButton(onClick = { /* do something */ }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Localized description")
+            }
+            IconButton(onClick = { contador++ }) {
+                BadgedBox(badge = {
+                    if (contador > 0) {
+                        Badge {
+                            Text(contador.toString())
+                        }
+                    }
+                }) {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        contentDescription = "Localized description",
+                    )
+                }
+
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { /* do something */ },
+                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+            ) {
+                Icon(Icons.Filled.Add, "Localized description")
+            }
+        }
+    )
+}
 
 
 /*@Preview(showBackground = true)
