@@ -36,6 +36,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.toMutableStateMap
@@ -50,19 +51,21 @@ import androidx.compose.ui.unit.sp
 import com.example.elsol.ui.theme.ElSolTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 data class Photo (
+    val id: UUID,
     val name: String,
     @DrawableRes val photo: Int
 )
 
-val photos = listOf<Photo>(
-    Photo("Corona solar", R.drawable.corona_solar),
-    Photo("Erupción solar", R.drawable.erupcionsolar),
-    Photo("Espículas", R.drawable.espiculas),
-    Photo("Filamentos", R.drawable.filamentos),
-    Photo("Magnetosfera", R.drawable.magnetosfera),
-    Photo("Manchasolar", R.drawable.manchasolar)
+val photos = mutableListOf<Photo>(
+    Photo(UUID.randomUUID(),"Corona solar", R.drawable.corona_solar),
+    Photo(UUID.randomUUID(),"Erupción solar", R.drawable.erupcionsolar),
+    Photo(UUID.randomUUID(),"Espículas", R.drawable.espiculas),
+    Photo(UUID.randomUUID(),"Filamentos", R.drawable.filamentos),
+    Photo(UUID.randomUUID(),"Magnetosfera", R.drawable.magnetosfera),
+    Photo(UUID.randomUUID(),"Manchasolar", R.drawable.manchasolar)
 )
 
 class MainActivity : ComponentActivity() {
@@ -90,23 +93,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState, scope: CoroutineScope) {
 
-    //val photosState by remember { mutableStateOf(photos) }
-    val photoState = remember { mutableStateListOf<Photo>() }
-    photoState.addAll(photos)
+    val photoState = remember { mutableStateOf(photos) }
 
     val expandedMapState = remember {
-        photoState.mapIndexed { index, photo ->
+        photoState.value.mapIndexed { index, _ ->
             index to false
         }.toMutableStateMap()
     }
-
-    val optionState = remember {
-        photoState.mapIndexed { index, photo ->
-            index to ""
-        }.toMutableStateMap()
-    }
-
-    //var option by remember { mutableStateOf("") }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -114,16 +107,14 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items(photoState.size) { index ->
-            val photo = photoState[index]
-            //var expanded by remember { mutableStateOf(false) }
+        items(photoState.value.size) { index ->
+            val photo = photoState.value[index]
             val expanded = expandedMapState[index] ?: false
-            val option = optionState[index] ?: ""
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFdfd0ea)
                 ),
-                modifier = Modifier.clickable{
+                modifier = Modifier.clickable {
                     scope.launch {
                         snackbarHostState.showSnackbar(photo.name)
                     }
@@ -137,9 +128,14 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
                         modifier = Modifier.fillMaxWidth().height(200.dp)
                     )
 
-                    //Spacer(modifier = Modifier.size(10.dp))
-
-                    Row(modifier = Modifier.fillMaxWidth().height(50.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
                             text = photo.name,
                             fontSize = 14.sp
@@ -163,8 +159,9 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
                             ) {
                                 DropdownMenuItem(
                                     onClick = {
-                                        optionState[index] = "Copiar"
                                         expandedMapState[index] = false
+                                        val copy = photo.copy(id = UUID.randomUUID())
+                                        photoState.value = (photoState.value + copy).toMutableList()
                                     },
                                     leadingIcon = { Icon(Icons.Filled.Add, "Add") },
                                     text = { Text("Copiar") }
@@ -172,8 +169,14 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
 
                                 DropdownMenuItem(
                                     onClick = {
-                                        optionState[index] = "Eliminar"
                                         expandedMapState[index] = false
+                                        /*photoState.value = photoState.value.toMutableList().apply {
+                                            removeAt(index)
+                                        }*/
+
+                                        val newList = photoState.value.toMutableList()
+                                        newList.removeAt(index)
+                                        photoState.value = newList
                                     },
                                     leadingIcon = { Icon(Icons.Filled.Delete, "Delete") },
                                     text = { Text("Eliminar") }
@@ -186,6 +189,8 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
         }
     }
 }
+
+
 
 /*@Preview(showBackground = true)
 @Composable
