@@ -72,6 +72,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.elsol.ui.theme.ElSolTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -100,6 +104,10 @@ class MainActivity : ComponentActivity() {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
                 val snackbarHostState = remember { SnackbarHostState() }
+                val navController = rememberNavController()
+
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -123,8 +131,11 @@ class MainActivity : ComponentActivity() {
                                             Text("Build")
                                         }
                                     },
-                                    selected = false,
-                                    onClick = {},
+                                    selected = (currentRoute == "Main"),
+                                    onClick = {
+                                        navController.navigate("Main")
+                                        scope.launch { drawerState.close() }
+                                    },
                                     modifier = Modifier.padding(horizontal = 30.dp)
                                 )
 
@@ -136,8 +147,11 @@ class MainActivity : ComponentActivity() {
                                             Text("Info")
                                         }
                                     },
-                                    selected = false,
-                                    onClick = {},
+                                    selected = (currentRoute == "Info"),
+                                    onClick = {
+                                        navController.navigate("Info")
+                                        scope.launch { drawerState.close() }
+                                    },
                                     modifier = Modifier.padding(horizontal = 30.dp)
                                 )
 
@@ -149,7 +163,7 @@ class MainActivity : ComponentActivity() {
                                             Text("Email")
                                         }
                                     },
-                                    selected = false,
+                                    selected = (currentRoute == "Email"),
                                     onClick = {},
                                     modifier = Modifier.padding(horizontal = 30.dp)
                                 )
@@ -158,11 +172,14 @@ class MainActivity : ComponentActivity() {
                     }
                 ) {
                     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {  BottomAppBar(drawerState, scope) }) { innerPadding ->
-                        MainScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            snackbarHostState = snackbarHostState,
-                            scope = scope
-                        )
+                        NavHost(
+                            navController = navController,
+                            startDestination = "Main",
+                            modifier = Modifier.padding(innerPadding)
+                        ) {
+                            composable("Main") { MainScreen(modifier = Modifier.padding(innerPadding),snackbarHostState, scope) }
+                            composable("Info") { InfoScreen(modifier = Modifier.padding(innerPadding)) }
+                        }
                     }
                 }
             }
