@@ -12,22 +12,27 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -35,16 +40,22 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -86,16 +97,73 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ElSolTheme {
-
+                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
                 val snackbarHostState = remember { SnackbarHostState() }
 
-                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {  BottomAppBar() }) { innerPadding ->
-                    MainScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        snackbarHostState = snackbarHostState,
-                        scope = scope
-                    )
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                Image(
+                                    painter = painterResource(R.drawable.espiculas),
+                                    contentDescription = "picture",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxWidth().height(200.dp)
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                NavigationDrawerItem(
+                                    label = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Filled.Build, contentDescription = "Icon build")
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Text("Build")
+                                        }
+                                    },
+                                    selected = false,
+                                    onClick = {},
+                                    modifier = Modifier.padding(horizontal = 30.dp)
+                                )
+
+                                NavigationDrawerItem(
+                                    label = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Filled.Info, contentDescription = "Icon info")
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Text("Info")
+                                        }
+                                    },
+                                    selected = false,
+                                    onClick = {},
+                                    modifier = Modifier.padding(horizontal = 30.dp)
+                                )
+
+                                NavigationDrawerItem(
+                                    label = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Filled.Email, contentDescription = "Icon email")
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Text("Email")
+                                        }
+                                    },
+                                    selected = false,
+                                    onClick = {},
+                                    modifier = Modifier.padding(horizontal = 30.dp)
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {  BottomAppBar(drawerState, scope) }) { innerPadding ->
+                        MainScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            snackbarHostState = snackbarHostState,
+                            scope = scope
+                        )
+                    }
                 }
             }
         }
@@ -203,14 +271,15 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
 }
 
 @Composable
-fun BottomAppBar() {
+fun BottomAppBar(drawerState: DrawerState, scope: CoroutineScope) {
 
     var contador by remember { mutableStateOf(0) }
 
     BottomAppBar(
+        containerColor = Color(0xFFf03305),
         actions = {
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Localized description")
+            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Localized description", tint = Color.White)
             }
             IconButton(onClick = { contador++ }) {
                 BadgedBox(badge = {
@@ -223,6 +292,7 @@ fun BottomAppBar() {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
+                        tint = Color.White
                     )
                 }
 
