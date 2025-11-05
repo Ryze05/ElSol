@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
@@ -133,8 +132,8 @@ class MainActivity : ComponentActivity() {
                                     },
                                     selected = (currentRoute == "Main"),
                                     onClick = {
-                                        navController.navigate("Main")
-                                        scope.launch { drawerState.close() }
+                                        //navController.navigate("Main")
+                                        //scope.launch { drawerState.close() }
                                     },
                                     modifier = Modifier.padding(horizontal = 30.dp)
                                 )
