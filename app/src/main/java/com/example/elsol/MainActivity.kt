@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -132,8 +133,8 @@ class MainActivity : ComponentActivity() {
                                     },
                                     selected = (currentRoute == "Main"),
                                     onClick = {
-                                        //navController.navigate("Main")
-                                        //scope.launch { drawerState.close() }
+                                        navController.navigate("Main")
+                                        scope.launch { drawerState.close() }
                                     },
                                     modifier = Modifier.padding(horizontal = 30.dp)
                                 )
@@ -197,86 +198,88 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
         }.toMutableStateMap()
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier.padding(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        items(photoState.value.size) { index ->
-            val photo = photoState.value[index]
-            val expanded = expandedMapState[index] ?: false
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFdfd0ea)
-                ),
-                modifier = Modifier.clickable {
-                    scope.launch {
-                        snackbarHostState.showSnackbar(photo.name)
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = modifier.padding(10.dp).fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(photoState.value.size) { index ->
+                val photo = photoState.value[index]
+                val expanded = expandedMapState[index] ?: false
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFdfd0ea)
+                    ),
+                    modifier = Modifier.clickable {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(photo.name)
+                        }
                     }
-                }
-            ) {
-                Column {
-                    Image(
-                        painter = painterResource(id = photo.photo),
-                        contentDescription = photo.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxWidth().height(200.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .padding(horizontal = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = photo.name,
-                            fontSize = 14.sp
+                ) {
+                    Column {
+                        Image(
+                            painter = painterResource(id = photo.photo),
+                            contentDescription = photo.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxWidth().height(200.dp)
                         )
 
-                        Box() {
-                            IconButton(
-                                onClick = { expandedMapState[index] = !(expandedMapState[index] ?: false) }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = "icon",
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .padding(horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = photo.name,
+                                fontSize = 14.sp
+                            )
 
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expandedMapState[index] = false },
-                                modifier = Modifier.background(Color(0xFFeee5f4))
-                            ) {
-                                DropdownMenuItem(
-                                    onClick = {
-                                        expandedMapState[index] = false
-                                        val copy = photo.copy(id = UUID.randomUUID())
-                                        photoState.value = (photoState.value + copy).toMutableList()
-                                    },
-                                    leadingIcon = { Icon(Icons.Filled.Add, "Add") },
-                                    text = { Text("Copiar") }
-                                )
+                            Box() {
+                                IconButton(
+                                    onClick = { expandedMapState[index] = !(expandedMapState[index] ?: false) }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "icon",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
 
-                                DropdownMenuItem(
-                                    onClick = {
-                                        expandedMapState[index] = false
-                                        /*photoState.value = photoState.value.toMutableList().apply {
-                                            removeAt(index)
-                                        }*/
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expandedMapState[index] = false },
+                                    modifier = Modifier.background(Color(0xFFeee5f4))
+                                ) {
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            expandedMapState[index] = false
+                                            val copy = photo.copy(id = UUID.randomUUID())
+                                            photoState.value = (photoState.value + copy).toMutableList()
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.Add, "Add") },
+                                        text = { Text("Copiar") }
+                                    )
 
-                                        val newList = photoState.value.toMutableList()
-                                        newList.removeAt(index)
-                                        photoState.value = newList
-                                    },
-                                    leadingIcon = { Icon(Icons.Filled.Delete, "Delete") },
-                                    text = { Text("Eliminar") }
-                                )
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            expandedMapState[index] = false
+                                            /*photoState.value = photoState.value.toMutableList().apply {
+                                                removeAt(index)
+                                            }*/
+
+                                            val newList = photoState.value.toMutableList()
+                                            newList.removeAt(index)
+                                            photoState.value = newList
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.Delete, "Delete") },
+                                        text = { Text("Eliminar") }
+                                    )
+                                }
                             }
                         }
                     }
@@ -284,6 +287,8 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
             }
         }
     }
+
+
 }
 
 @Composable
