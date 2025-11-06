@@ -81,18 +81,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-data class Photo (
+data class Photo(
     val id: UUID,
     val name: String,
     @DrawableRes val photo: Int
 )
+
 val photos = mutableListOf<Photo>(
-    Photo(UUID.randomUUID(),"Corona solar", R.drawable.corona_solar),
-    Photo(UUID.randomUUID(),"Erupción solar", R.drawable.erupcionsolar),
-    Photo(UUID.randomUUID(),"Espículas", R.drawable.espiculas),
-    Photo(UUID.randomUUID(),"Filamentos", R.drawable.filamentos),
-    Photo(UUID.randomUUID(),"Magnetosfera", R.drawable.magnetosfera),
-    Photo(UUID.randomUUID(),"Manchasolar", R.drawable.manchasolar)
+    Photo(UUID.randomUUID(), "Corona solar", R.drawable.corona_solar),
+    Photo(UUID.randomUUID(), "Erupción solar", R.drawable.erupcionsolar),
+    Photo(UUID.randomUUID(), "Espículas", R.drawable.espiculas),
+    Photo(UUID.randomUUID(), "Filamentos", R.drawable.filamentos),
+    Photo(UUID.randomUUID(), "Magnetosfera", R.drawable.magnetosfera),
+    Photo(UUID.randomUUID(), "Manchasolar", R.drawable.manchasolar)
 )
 
 class MainActivity : ComponentActivity() {
@@ -118,7 +119,9 @@ class MainActivity : ComponentActivity() {
                                     painter = painterResource(R.drawable.espiculas),
                                     contentDescription = "picture",
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxWidth().height(200.dp)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
                                 )
 
                                 Spacer(modifier = Modifier.height(10.dp))
@@ -126,7 +129,10 @@ class MainActivity : ComponentActivity() {
                                 NavigationDrawerItem(
                                     label = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Filled.Build, contentDescription = "Icon build")
+                                            Icon(
+                                                Icons.Filled.Build,
+                                                contentDescription = "Icon build"
+                                            )
                                             Spacer(modifier = Modifier.width(10.dp))
                                             Text("Build")
                                         }
@@ -142,7 +148,10 @@ class MainActivity : ComponentActivity() {
                                 NavigationDrawerItem(
                                     label = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Filled.Info, contentDescription = "Icon info")
+                                            Icon(
+                                                Icons.Filled.Info,
+                                                contentDescription = "Icon info"
+                                            )
                                             Spacer(modifier = Modifier.width(10.dp))
                                             Text("Info")
                                         }
@@ -158,7 +167,10 @@ class MainActivity : ComponentActivity() {
                                 NavigationDrawerItem(
                                     label = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Filled.Email, contentDescription = "Icon email")
+                                            Icon(
+                                                Icons.Filled.Email,
+                                                contentDescription = "Icon email"
+                                            )
                                             Spacer(modifier = Modifier.width(10.dp))
                                             Text("Email")
                                         }
@@ -171,13 +183,22 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) {
-                    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {  BottomAppBar(drawerState, scope) }) { innerPadding ->
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        snackbarHost = { SnackbarHost(snackbarHostState) },
+                        bottomBar = { BottomAppBar(drawerState, scope) }) { innerPadding ->
                         NavHost(
                             navController = navController,
                             startDestination = "Main",
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable("Main") { MainScreen(modifier = Modifier.padding(innerPadding),snackbarHostState, scope) }
+                            composable("Main") {
+                                MainScreen(
+                                    modifier = Modifier.padding(innerPadding),
+                                    snackbarHostState,
+                                    scope
+                                )
+                            }
                             composable("Info") { InfoScreen(modifier = Modifier.padding(innerPadding)) }
                         }
                     }
@@ -188,7 +209,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostState, scope: CoroutineScope) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
+) {
 
     val photoState = remember { mutableStateOf(photos) }
 
@@ -198,88 +223,92 @@ fun MainScreen(modifier: Modifier = Modifier, snackbarHostState: SnackbarHostSta
         }.toMutableStateMap()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = modifier.padding(10.dp).fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            items(photoState.value.size) { index ->
-                val photo = photoState.value[index]
-                val expanded = expandedMapState[index] ?: false
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFdfd0ea)
-                    ),
-                    modifier = Modifier.clickable {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(photo.name)
-                        }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = modifier
+            .padding(horizontal = 10.dp)
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        items(photoState.value.size) { index ->
+            val photo = photoState.value[index]
+            val expanded = expandedMapState[index] ?: false
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFdfd0ea)
+                ),
+                modifier = Modifier.clickable {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(photo.name)
                     }
-                ) {
-                    Column {
-                        Image(
-                            painter = painterResource(id = photo.photo),
-                            contentDescription = photo.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxWidth().height(200.dp)
+                }
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = photo.photo),
+                        contentDescription = photo.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = photo.name,
+                            fontSize = 14.sp
                         )
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
-                                .padding(horizontal = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = photo.name,
-                                fontSize = 14.sp
-                            )
-
-                            Box() {
-                                IconButton(
-                                    onClick = { expandedMapState[index] = !(expandedMapState[index] ?: false) }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = "icon",
-                                        modifier = Modifier.size(18.dp)
-                                    )
+                        Box() {
+                            IconButton(
+                                onClick = {
+                                    expandedMapState[index] = !(expandedMapState[index] ?: false)
                                 }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "icon",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
 
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expandedMapState[index] = false },
-                                    modifier = Modifier.background(Color(0xFFeee5f4))
-                                ) {
-                                    DropdownMenuItem(
-                                        onClick = {
-                                            expandedMapState[index] = false
-                                            val copy = photo.copy(id = UUID.randomUUID())
-                                            photoState.value = (photoState.value + copy).toMutableList()
-                                        },
-                                        leadingIcon = { Icon(Icons.Filled.Add, "Add") },
-                                        text = { Text("Copiar") }
-                                    )
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expandedMapState[index] = false },
+                                modifier = Modifier.background(Color(0xFFeee5f4))
+                            ) {
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expandedMapState[index] = false
+                                        val copy = photo.copy(id = UUID.randomUUID())
+                                        photoState.value = (photoState.value + copy).toMutableList()
+                                    },
+                                    leadingIcon = { Icon(Icons.Filled.Add, "Add") },
+                                    text = { Text("Copiar") }
+                                )
 
-                                    DropdownMenuItem(
-                                        onClick = {
-                                            expandedMapState[index] = false
-                                            /*photoState.value = photoState.value.toMutableList().apply {
-                                                removeAt(index)
-                                            }*/
+                                DropdownMenuItem(
+                                    onClick = {
+                                        expandedMapState[index] = false
+                                        /*photoState.value = photoState.value.toMutableList().apply {
+                                            removeAt(index)
+                                        }*/
 
-                                            val newList = photoState.value.toMutableList()
-                                            newList.removeAt(index)
-                                            photoState.value = newList
-                                        },
-                                        leadingIcon = { Icon(Icons.Filled.Delete, "Delete") },
-                                        text = { Text("Eliminar") }
-                                    )
-                                }
+                                        val newList = photoState.value.toMutableList()
+                                        newList.removeAt(index)
+                                        photoState.value = newList
+                                    },
+                                    leadingIcon = { Icon(Icons.Filled.Delete, "Delete") },
+                                    text = { Text("Eliminar") }
+                                )
                             }
                         }
                     }
@@ -300,7 +329,11 @@ fun BottomAppBar(drawerState: DrawerState, scope: CoroutineScope) {
         containerColor = Color(0xFFf03305),
         actions = {
             IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Localized description", tint = Color.White)
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Localized description",
+                    tint = Color.White
+                )
             }
             IconButton(onClick = { contador++ }) {
                 BadgedBox(badge = {
